@@ -1,0 +1,32 @@
+name: Rust CD (Release)
+
+# Triggers deployment ONLY when a tag starting with "v" is pushed (e.g., v1.0.0)
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-and-release:
+    name: Build & Release (Linux)
+    runs-on: ubuntu-latest 
+
+    
+    steps:
+      - name: Retrieving the code
+        uses: actions/checkout@v4
+
+      - name: Installing Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Optimized compilation (Release)
+        run: cargo build --release
+
+      - name: Creating the GitHub release and uploading the executable
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/shellguard
+          asset_name: shellguard-linux
+          tag: ${{ github.ref }}
+          overwrite: true

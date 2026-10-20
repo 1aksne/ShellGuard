@@ -1,0 +1,35 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ "main" ]  # Trigger when we update the principal branch
+  pull_request:
+    branches: [ "main" ]  # Trigger on every PR
+
+jobs:
+  check_and_test:
+    name: Global verification
+    runs-on: ubuntu-latest
+
+  # Download source code from github
+  steps:
+    - name: Retrieving the code
+      uses: actions/checkout@v4
+
+    # Install Rust and verification tools
+    - name: Rust install
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+
+    # Check if code is readable by the compiler
+    - name: Compilation verification
+      run: cargo check
+
+    # Detects bad practices and prevents validation if there are any warnings
+    - name: Code analysis (clippy)
+      run: cargo clippy -- -D warnings
+
+    # Run project tests
+    - name: Launch tests
+      run: cargo test 
